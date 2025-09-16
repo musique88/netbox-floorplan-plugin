@@ -9,7 +9,7 @@ import {
     init_floor_plan
 } from "/static/netbox_floorplan/floorplan/utils.js";
 
-var canvas = new fabric.Canvas('canvas');
+const canvas = new fabric.Canvas('canvas');
 
 canvas.on('mouse:over', function (options) {
     if (options.target) {
@@ -55,5 +55,5 @@ document.getElementById('export_svg').addEventListener('click', () => {
 });
 
 
-let floorplan_id = document.getElementById('floorplan_id').value;
+const floorplan_id = document.getElementById('floorplan_id').value;
 document.addEventListener("DOMContentLoaded", init_floor_plan(floorplan_id, canvas, "readonly"));

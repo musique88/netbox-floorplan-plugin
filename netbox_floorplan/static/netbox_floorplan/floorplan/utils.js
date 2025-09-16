@@ -13,13 +13,13 @@ export {
 };
 
 
-function resize_canvas(canvas, window) {
-    var bob_width = $("#content-container").width();
-    var window_width = $(window).width();
+const resize_canvas = (canvas, window) => {
+    const bob_width = $("#content-container").width();
+    const window_width = $(window).width();
     window_width = Math.min(window_width, bob_width);
-    var window_height = $(window).height();
-    var canvas_width = window_width;
-    var canvas_height = window_height - 100;
+    const window_height = $(window).height();
+    const canvas_width = window_width;
+    const canvas_height = window_height - 100;
     canvas.setWidth(canvas_width);
     canvas.setHeight(canvas_height);
 //    canvas.backgroundImage.scaleToWidth(canvas_width);
@@ -27,25 +27,24 @@ function resize_canvas(canvas, window) {
     canvas.renderAll();
 }
 
-function reset_zoom(canvas) {
-
-    var objs = canvas.getObjects();
-    for (var i = 0; i < objs.length; i++) {
+const reset_zoom = (canvas) => {
+    const objs = canvas.getObjects();
+    for (let i = 0; i < objs.length; i++) {
         if (objs[i].custom_meta) {
             if (objs[i].custom_meta.object_type == "floorplan_boundry") {
                 canvas.setActiveObject(objs[i]);
                 let pan_x = 0
                 let pan_y = 0
-                let object = canvas.getActiveObject()
-                let obj_wdth = object.getScaledWidth()
-                let obj_hgt = object.getScaledHeight()
-                let rect_cooords = object.getBoundingRect();
-                let zoom_level = Math.min(canvas.width / rect_cooords.width, canvas.height / rect_cooords.height);
+                const object = canvas.getActiveObject()
+                const obj_wdth = object.getScaledWidth()
+                const obj_hgt = object.getScaledHeight()
+                const rect_cooords = object.getBoundingRect();
+                const zoom_level = Math.min(canvas.width / rect_cooords.width, canvas.height / rect_cooords.height);
 
                 canvas.setZoom(zoom_level * 0.7);
-                let zoom = canvas.getZoom()
-                pan_x = ((canvas.getWidth() / zoom / 2) - (object.aCoords.tl.x) - (obj_wdth / 2)) * zoom
-                pan_y = ((canvas.getHeight() / zoom / 2) - (object.aCoords.tl.y) - (obj_hgt / 2)) * zoom
+                const zoom = canvas.getZoom()
+                //pan_x = ((canvas.getWidth() / zoom / 2) - (object.aCoords.tl.x) - (obj_wdth / 2)) * zoom
+                //pan_y = ((canvas.getHeight() / zoom / 2) - (object.aCoords.tl.y) - (obj_hgt / 2)) * zoom
                 pan_x = (canvas.getVpCenter().x - object.getCenterPoint().x) * zoom
                 pan_y = ((canvas.getVpCenter().y - object.getCenterPoint().y) * zoom)
                 canvas.relativePan({ x: pan_x, y: pan_y })
@@ -56,32 +55,32 @@ function reset_zoom(canvas) {
     }
 }
 
-function export_svg(canvas) {
-    var filedata = canvas.toSVG();
-    var locfile = new Blob([filedata], { type: "image/svg+xml;charset=utf-8" });
-    var locfilesrc = URL.createObjectURL(locfile);
-    var link = document.createElement('a');
+const export_svg = (canvas) => {
+    const filedata = canvas.toSVG();
+    const locfile = new Blob([filedata], { type: "image/svg+xml;charset=utf-8" });
+    const locfilesrc = URL.createObjectURL(locfile);
+    const link = document.createElement('a');
     link.style.display = 'none';
     link.href = locfilesrc;
     link.download = "floorplan.svg";
     link.click();
 }
 
-function enable_button_selection() {
+const enable_button_selection = () => {
     document.getElementById("selected_color").value = "#000000";
     $(".tools").removeClass("disabled");
 }
 
-function disable_button_selection() {
+const disable_button_selection = () => {
     // set color to default
     document.getElementById("selected_color").value = "#000000";
     $(".tools").addClass("disabled");
 }
 
-function prevent_leaving_canvas(e, canvas) {
-    var obj = e.target;
+const prevent_leaving_canvas = (e, canvas) => {
+    const obj = e.target;
     obj.setCoords();
-    var current_zoom = obj.canvas.getZoom();
+    const current_zoom = obj.canvas.getZoom();
     if (obj.getScaledHeight() > obj.canvas.height || obj.getScaledWidth() > obj.canvas.width) {
         return;
     }
@@ -95,10 +94,9 @@ function prevent_leaving_canvas(e, canvas) {
     }
 };
 
-
-function wheel_zoom(opt, canvas) {
-    var delta = opt.e.deltaY;
-    var zoom = canvas.getZoom();
+const wheel_zoom = (opt, canvas) => {
+    const delta = opt.e.deltaY;
+    let zoom = canvas.getZoom();
     zoom *= 0.999 ** delta;
     if (zoom > 20) zoom = 20;
     if (zoom < 0.01) zoom = 0.01;
@@ -107,105 +105,99 @@ function wheel_zoom(opt, canvas) {
     opt.e.stopPropagation();
 }
 
-function stop_pan(canvas) {
+const stop_pan = (canvas) => {
     canvas.setViewportTransform(canvas.viewportTransform);
     canvas.isDragging = false;
     canvas.selection = true;
 }
 
-function start_pan(opt, canvas) {
-    var evt = opt.e;
-    if (evt.altKey === true) {
-        canvas.isDragging = true;
-        canvas.selection = false;
-        canvas.lastPosX = evt.clientX;
-        canvas.lastPosY = evt.clientY;
-    }
+const start_pan = (opt, canvas) => {
+    const evt = opt.e;
+    if (evt.altKey !== true) return;
+        
+    canvas.isDragging = true;
+    canvas.selection = false;
+    canvas.lastPosX = evt.clientX;
+    canvas.lastPosY = evt.clientY;
 }
 
-function move_pan(opt, canvas) {
-    if (canvas.isDragging) {
-        var e = opt.e;
-        var vpt = canvas.viewportTransform;
-        vpt[4] += e.clientX - canvas.lastPosX;
-        vpt[5] += e.clientY - canvas.lastPosY;
-        canvas.requestRenderAll();
-        canvas.lastPosX = e.clientX;
-        canvas.lastPosY = e.clientY;
-    }
+const move_pan = (opt, canvas) => {
+    if (!canvas.isDragging) return;
+
+    const e = opt.e;
+    const vpt = canvas.viewportTransform;
+    vpt[4] += e.clientX - canvas.lastPosX;
+    vpt[5] += e.clientY - canvas.lastPosY;
+    canvas.requestRenderAll();
+    canvas.lastPosX = e.clientX;
+    canvas.lastPosY = e.clientY;
 }
 
-
-
-
-function init_floor_plan(floorplan_id, canvas, mode) {
-
+const init_floor_plan = (floorplan_id, canvas, mode) => {
     if (floorplan_id === undefined || floorplan_id === null || floorplan_id === "") {
         return;
     }
 
-    var target_image = 0;
+    let target_image = 0;
     const floorplan_call = $.get(`/api/plugins/floorplan/floorplans/?id=${floorplan_id}`);
-    floorplan_call.done(function (floorplan) {
+    floorplan_call.done((floorplan) => {
         floorplan.results.forEach((floorplan) => {
             target_image = floorplan.assigned_image
-            canvas.loadFromJSON(JSON.stringify(floorplan.canvas), canvas.renderAll.bind(canvas), function (o, object) {
+            canvas.loadFromJSON(JSON.stringify(floorplan.canvas), canvas.renderAll.bind(canvas), (o, object) => {
                 if (mode == "readonly") {
                     object.set('selectable', false);
                 }
-                if (floorplan.assigned_image != null) {
-                    var img_url = "";
-                    if (floorplan.assigned_image.external_url != "") {
-                        img_url = floorplan.assigned_image.external_url;
-                    } else {
-                        img_url = floorplan.assigned_image.file;
-                    }
+                if (floorplan.assigned_image == null) {
+                    canvas.setBackgroundImage().renderAll();
+                    canvas.renderAll();
+                    return;
+                }
 
+                let img_url = floorplan.assigned_image.file;
+                if (floorplan.assigned_image.external_url != "") {
+                    img_url = floorplan.assigned_image.external_url;
+                } 
 
-                    var img = fabric.Image.fromURL(img_url, function(img) {
-                        var left = 0;
-                        var top = 0;
-                        var width = 0;
-                        var height = 0;
-                        canvas.getObjects().forEach(function (object) {
-                            if (object.custom_meta) {
-                                if (object.custom_meta.object_type == "floorplan_boundry") {
-                                    left = object.left;
-                                    top = object.top;
-                                    width = object.width;
-                                    height = object.height;
-                                }
+                fabric.Image.fromURL(img_url, (img) => {
+                    let left = 0;
+                    let top = 0;
+                    let width = 0;
+                    let height = 0;
+                    canvas.getObjects().forEach(function (object) {
+                        if (object.custom_meta) {
+                            if (object.custom_meta.object_type == "floorplan_boundry") {
+                                left = object.left;
+                                top = object.top;
+                                width = object.width;
+                                height = object.height;
                             }
-                        });
-                        // if we have a floorplan boundary, position the image in there 
-                        if (height != 0 && width != 0) {
-                            let scaleRatioX = Math.max(width / img.width)
-                            let scaleRatioY = Math.max(height / img.height);
-                            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-                                scaleX: scaleRatioX,
-                                scaleY: scaleRatioY,
-                                left: left,
-                                top: top
-                            });     
-                        }
-                         else
-                        {
-                            let scaleRatio = Math.max(canvas.width / img.width, canvas.height / img.height);
-                            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-                                scaleX: scaleRatio,
-                                scaleY: scaleRatio,
-                                left: canvas.width / 2,
-                                top: canvas.height / 2,
-                                originX: 'middle',
-                                originY: 'middle'
-                            });
                         }
                     });
+                    // if we have a floorplan boundary, position the image in there 
+                    if (height != 0 && width != 0) {
+                        let scaleRatioX = Math.max(width / img.width)
+                        let scaleRatioY = Math.max(height / img.height);
+                        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+                            scaleX: scaleRatioX,
+                            scaleY: scaleRatioY,
+                            left: left,
+                            top: top
+                        });     
+                    }
+                    else
+                    {
+                        let scaleRatio = Math.max(canvas.width / img.width, canvas.height / img.height);
+                        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+                            scaleX: scaleRatio,
+                            scaleY: scaleRatio,
+                            left: canvas.width / 2,
+                            top: canvas.height / 2,
+                            originX: 'middle',
+                            originY: 'middle'
+                        });
+                    }
+                });
                 
-
-                } else {
-                    canvas.setBackgroundImage().renderAll();
-                }
                 canvas.renderAll();
             });
         });
