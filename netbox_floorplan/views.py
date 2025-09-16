@@ -51,11 +51,31 @@ class FloorplanLocationTabView(generic.ObjectView):
         else:
             return {"floorplan": None, "record_type": "location"}
 
+class FloorplanView(generic.ObjectView):
+    queryset = models.Floorplan.objects.all()
+
+    tab = ViewTab(
+        label="Floor Plan",
+        hide_if_empty=False,
+        permission="netbox_floorplan.view_floorplan",
+    )
+    template_name = "netbox_floorplan/floorplan_view.html"
+
+    def get_extra_context(self, request, instance):
+        floorplan_qs = models.Floorplan.objects.filter(
+            id=instance.id).first()
+        if floorplan_qs:
+            floorplan_qs.resync_canvas()
+            return {"floorplan": floorplan_qs}
+        else:
+            return {"floorplan": None}
+
+
 
 class FloorplanListView(generic.ObjectListView):
     queryset = models.Floorplan.objects.all()
     table = tables.FloorplanTable
-    template_name = "netbox_floorplan/floorplan_ui_listview.html"
+    #template_name = "netbox_floorplan/floorplan_list.html"
 
 
 class FloorplanAddView(PermissionRequiredMixin, View):

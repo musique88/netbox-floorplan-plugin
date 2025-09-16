@@ -20,7 +20,11 @@ menu_buttons = (
             ),
         ),
     ),
-
+    PluginMenuItem(
+        link="plugins:netbox_floorplan:floorplan_list",
+        link_text="Floorplans",
+        buttons=()
+    )
 )
 
 

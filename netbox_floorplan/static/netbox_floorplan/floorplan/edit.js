@@ -95,7 +95,7 @@ document.getElementById('export_svg').addEventListener('click', () => {
     export_svg(canvas);
 });
 
-window.add_wall () => {
+window.add_wall = () => {
     const wall = new fabric.Rect({
         top: 0,
         left: 0,

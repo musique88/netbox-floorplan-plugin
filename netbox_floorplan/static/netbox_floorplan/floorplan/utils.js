@@ -15,8 +15,7 @@ export {
 
 const resize_canvas = (canvas, window) => {
     const bob_width = $("#content-container").width();
-    const window_width = $(window).width();
-    window_width = Math.min(window_width, bob_width);
+    const window_width = Math.min($(window).width(), bob_width);
     const window_height = $(window).height();
     const canvas_width = window_width;
     const canvas_height = window_height - 100;
